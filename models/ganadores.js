@@ -1,25 +1,30 @@
-const Voto = require('./voto');
 const mongoose = require('mongoose');
+const Voto = require('./voto');
 
-async function obtenerTop3Ganadores() {
+async function obtenerTopGanadores(limit = 3) {
   const resultados = await Voto.aggregate([
-    { $group: { _id: '$candidato', totalVotos: { $sum: 1 } } },
-    { $sort: { totalVotos: -1 } },
-    { $limit: 3 },
     {
-      $lookup: {
-        from: 'candidatos',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'candidato'
+      $group: {
+        _id: { $toObjectId: "$candidato" },
+        totalVotos: { $sum: 1 }
       }
     },
-    { $unwind: '$candidato' },
+    { $sort: { totalVotos: -1 } },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: "candidatos",
+        localField: "_id",
+        foreignField: "_id",
+        as: "candidato"
+      }
+    },
+    { $unwind: "$candidato" },
     {
       $project: {
         _id: 0,
-        nombre: '$candidato.nombre',
-        partido: '$candidato.partido',
+        nombre: "$candidato.nombre",
+        partido: "$candidato.partido",
         totalVotos: 1
       }
     }
@@ -28,4 +33,4 @@ async function obtenerTop3Ganadores() {
   return resultados;
 }
 
-module.exports = { obtenerTop3Ganadores };
+module.exports = { obtenerTopGanadores };

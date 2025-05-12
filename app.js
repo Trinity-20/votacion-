@@ -5,7 +5,7 @@ require('dotenv').config();
 const Candidato = require('./models/candidato');
 const Votante = require('./models/votante');
 const Voto = require('./models/voto');
-const { obtenerTop3Ganadores } = require('./models/ganadores');
+const { obtenerTopGanadores } = require('./models/ganadores'); // ✅ nombre correcto
 
 const app = express();
 app.use(express.json());
@@ -66,7 +66,7 @@ app.get('/votos', async (req, res) => {
 // Mostrar los 3 ganadores
 app.get('/ganadores', async (req, res) => {
   try {
-    const ganadores = await obtenerTop3Ganadores();
+    const ganadores = await obtenerTopGanadores(3); // ✅ pasa el valor 3
     res.json(ganadores);
   } catch (err) {
     res.status(500).json({ mensaje: 'Error al obtener ganadores', error: err.message });
